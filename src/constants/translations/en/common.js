@@ -1,0 +1,15 @@
+export default {
+    hello: "Hello",
+    languageSelector: "Select Language",
+    reportTitle: "Report",
+    chatTitle: "Chat",
+    back: "Back",
+    next: "Next",
+    submit: "Submit",
+    cancel: "Cancel",
+    ok: "Ok",
+    submitConfirm: "Are you sure you want to submit this report?",
+    chat: "Chat with a counselor",
+    report: "Submit a report",
+    source: "Sourced from",
+}
