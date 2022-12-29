@@ -164,10 +164,10 @@ const listenForMessages = async (dispatch, action, chatNumber) => {
     }
 }
 
-const uploadResourceData = async (countyData) => {
+const uploadResourceData = async (name, countyData) => {
     try {
-        console.log(countyData["geo_shape"][0])
-        await setDoc(collection(db, "resources", "polygons", countyData["countyName"]),  countyData["geo_shape"][0], {
+        console.log(countyData)
+        await setDoc(collection(db, "resources", "polygons", name),  countyData, {
             merge: true});
         return true;
     }
