@@ -177,11 +177,28 @@ const uploadResourceData = async (name, countyData) => {
     }
 }
 
+const fetchResources = async () => {
+    try {
+        const q = query(collection(db, "resources"));
+        const querySnapshot = await getDocs(q);
+        let data = []
+        querySnapshot.forEach((doc) => {
+            data.push(doc.data())
+        });
+        return data;
+    }
+    catch (err) {
+        console.error(err);
+        return false;
+    }
+}
+
 export {
     sendReport,
     uploadImage,
     listenForMessages,
     uploadMessage,
     createChat,
-    uploadResourceData
+    uploadResourceData,
+    fetchResources
 }

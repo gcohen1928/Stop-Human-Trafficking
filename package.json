@@ -17,6 +17,7 @@
     "@reduxjs/toolkit": "^1.9.1",
     "expo": "~47.0.8",
     "expo-av": "~13.0.2",
+    "expo-file-system": "^15.1.1",
     "expo-image-picker": "~14.0.2",
     "expo-localization": "~14.0.0",
     "expo-location": "^15.0.1",

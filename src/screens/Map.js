@@ -1,63 +1,59 @@
-import React from "react";
-import MapView, { Polygon, Marker} from "react-native-maps";
-import { Button, Colors, Text, LoaderScreen } from "react-native-ui-lib";
+import React, { useRef, useState, useEffect } from "react";
+import MapView, { Polygon, Marker } from "react-native-maps";
+import { Button, Colors, Text, LoaderScreen, View, TouchableOpacity } from "react-native-ui-lib";
 import { uploadResourceData } from "../../firebase";
-import * as Location from 'expo-location';
-//import borders from "src/constants/countyborders.js"
+import borders from "../constants/countyborders";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import * as Location from "expo-location";
+import {useDispatch, useSelector} from 'react-redux'
+import { getResources } from "../redux/resources-actions";
 
-// const converToPolygon = (name, arr) => {
-//   var polygon = [];
 
-//   arr.forEach((element) => {
-//     polygon.push({
-//       latitude: element[1],
-//       longitude: element[0],
-//     });
-//   });
-//   return polygon;
-// };
-// const loadCountyData = async () => {
-//   var arr = [];
-//   const res = fetch(
-//     "https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-county-boundaries&q=&rows=67&facet=statefp&facet=countyfp&facet=name&facet=namelsad&facet=stusab&facet=state_name&refine.stusab=FL"
-//   )
-//     .then((res) => res.json())
-//     .then((json) => {
-//       json["records"].forEach((element, index) => {
-//         const countyName = element["fields"]["namelsad"];
-//         arr.push({
-//           countyName: countyName,
-//           geo_shape: element["fields"]["geo_shape"]["coordinates"],
-//         });
-//         if (index === 1){
-//         }
-//       });
-//       return arr;
-//     });
-//   return res;
-//   //return arr
-// };
+const converToPolygon = (name, arr) => {
+  var polygon = [];
+  arr = arr[0];
+  if (name === "Dixie County" || name === "Monroe County") {
+    arr = arr[0];
+  }
+  arr.forEach((element) => {
+    polygon.push({
+      latitude: element[1],
+      longitude: element[0],
+    });
+  });
+  return polygon;
+};
 
 export const Map = () => {
-  const [location, setLocation] = React.useState(null);
+  const [location, setLocation] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const state = useSelector(state => state.resources)
+  const mapRef = useRef(null);
+  const dispatch = useDispatch()
 
-
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permission to access location was denied');
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
         return;
       }
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
     })();
+    borders.forEach((element) => {
+       element["geo_shape"] = converToPolygon(
+         element["countyName"],
+         element["geo_shape"]
+       );
+     });
+    dispatch(getResources())
+    setLoading(false)
   }, []);
 
-
   return (
-    <>
-    { <MapView
+    <View flex>
+      <MapView
         style={{ flex: 1 }}
         initialRegion={{
           latitude: 26.994402,
@@ -65,28 +61,68 @@ export const Map = () => {
           latitudeDelta: 10.522,
           longitudeDelta: 8.521,
         }}
+        ref={mapRef}
       >
-        {/* {
+        {!loading && 
           borders.map((element, index) => {
             return (
               <Polygon
                 key={element["countyName"]}
                 coordinates={element["geo_shape"]}
                 strokeColor="#000"
-                fillColor={Colors.primaryColor}
+                fillColor="rgba(44, 114, 251, 0.5)"
+                
+
               />
             );
-          })} */}
-          {location && <Marker
-          coordinate={{
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
+          })}
+        {location && (
+          <Marker
+            coordinate={{
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
             }}
             title="My Location"
             description="This is my location"
+          />
+        )}
+        {state.resources && state.resources.map((element, index) => {
+          console.log(element)
+          return (
+            <Marker
+              key={index}
+              pinColor={Colors.primaryColor}
+              coordinate={element.coords}
+              title={element["name"]}
+              description={element["hours"]}
             />
-          }
-      </MapView>}
-    </>
+          );
+        })}
+      
+          
+      </MapView>
+      <TouchableOpacity
+          style={{position:"absolute", bottom: 20, right: 20}}
+            onPress={() => {
+              mapRef.current.animateToRegion(
+                {
+                  latitude: location.coords.latitude,
+                  longitude: location.coords.longitude,
+                  latitudeDelta: 0.0922,
+                  longitudeDelta: 0.0421,
+                },
+                1000
+              );
+              console.log(state)
+            }}
+          >
+            <Ionicons
+              name="navigate-circle"
+              size={50}
+              color={Colors.primaryColor}
+              stlye={{position: "absolute", bottom: 20, right: 20}}
+            />
+          </TouchableOpacity>
+    </View>
   );
 };
