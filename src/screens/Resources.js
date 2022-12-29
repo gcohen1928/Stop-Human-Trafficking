@@ -8,8 +8,7 @@ import { ScrollView } from "react-native";
 import {Drawer} from '../components/Drawer'
 import { resources } from "../constants/resources";
 import { useNavigation } from "@react-navigation/native";
-import { uploadResourceData } from "../../firebase";
-
+import Ionicons from "react-native-vector-icons/Ionicons";
 export const Resources = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
@@ -29,7 +28,11 @@ export const Resources = () => {
         </View>
         <Button onPress = {async () => {
          navigation.navigate("map")
-          }} marginT-10 label={"Fetch Data"} body bg-primaryColor />
+          }} marginV-s10 marginH-20 body bg-primaryColor >
+            <Text white>{t(`info:resources:mapButton`)}{"     "}</Text>
+            <Ionicons name="map" size={20} color="white" />
+          </Button>
+
         {Object.keys(resources).map((key, index) => {
             return <Drawer key={index} resource={resources[key]} />
         })}

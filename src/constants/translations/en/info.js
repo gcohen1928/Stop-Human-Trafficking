@@ -93,7 +93,8 @@ export default {
             phoneNumber: "1-800-96-ABUSE",
             phoneNumber2: "1-800-453-5145",
             hours: "24/7",
-        }
+        },
+        mapButton: "View Map",
     }
 
 }

@@ -74,6 +74,12 @@ export const styles = StyleSheet.create({
         padding: 1,
         borderRadius: 10,
 
+    },
+    infoPopup: {
+        backgroundColor: colors.white,
+        padding: 5,
+        borderRadius: 10,
+        width: "70%",
     }
     }
 );
