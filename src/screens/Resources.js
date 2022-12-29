@@ -7,9 +7,13 @@ import { useTranslation } from "react-i18next";
 import { ScrollView } from "react-native";
 import {Drawer} from '../components/Drawer'
 import { resources } from "../constants/resources";
+import { useNavigation } from "@react-navigation/native";
+import { uploadResourceData } from "../../firebase";
 
 export const Resources = () => {
+  const navigation = useNavigation();
   const { t } = useTranslation();
+  var arr = []
   return (
     <ScrollView>
       <View flex>
@@ -23,6 +27,9 @@ export const Resources = () => {
             {t(`info:resources:subheader`)}
           </Text>
         </View>
+        <Button onPress = {async () => {
+         navigation.navigate("map")
+          }} marginT-10 label={"Fetch Data"} body bg-primaryColor />
         {Object.keys(resources).map((key, index) => {
             return <Drawer key={index} resource={resources[key]} />
         })}

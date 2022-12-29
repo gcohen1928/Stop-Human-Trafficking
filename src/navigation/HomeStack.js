@@ -2,6 +2,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import {Info} from "../screens/Info";
 import {Home} from "../screens/Home";
 import { Resources } from "../screens/Resources";
+import { Map } from "../screens/Map";
 
 const Stack = createStackNavigator();
 
@@ -39,6 +40,13 @@ export default HomeStack = () => {
       <Stack.Screen
         name="resources"
         component={Resources}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="map"
+        component={Map}
         options={{
           headerShown: false,
         }}
