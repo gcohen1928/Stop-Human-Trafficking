@@ -1,6 +1,6 @@
 export default {
     financial: {
-        title: "Financial Abuse",
+        title: "Forced Labor",
         homeSubtitle: "We'll go over what it looks like and how to prevent it",
         header: "What To Know",
         subheader: "Millions of elderly Americans are financially abused every year",
@@ -16,7 +16,7 @@ export default {
         source: "https://elderaffairs.org/wp-content/uploads/financial_abuse_pamphlet_eng.pdf"
     },
     physical: {
-        title: "Physical Abuse",
+        title: "Sex Trafficking",
         homeSubtitle: "We'll go over what it looks like and how to prevent it",
         header: "What To Know",
         subheader: "Physical abuse is a most common form of elder abuse",
@@ -32,7 +32,7 @@ export default {
         source: "https://www.nursinghomeabusecenter.com/elder-abuse/types/physical-abuse/"
     },
     neglect :{
-        title: "Neglect",
+        title: "Domestic Servitude",
         homeSubtitle: "We'll go over what it looks like and how to prevent it",
         header: "What To Know",
         subheader: "Neglect accounts for more than half of all elder abuse cases",
@@ -52,7 +52,7 @@ export default {
         title: "Resources",
         homeSubtitle: "A list of resources in Florida to assist in adult abuse",
         header: "Who to Contact",
-        subheader: "If you suspect elder abuse, refer to any and all resources listed below",
+        subheader: "If you suspect human trafficking, refer to any and all resources listed below",
         infoAndAssistance: {
             title: "Info & Assistance",
             subtitle: "Florida's Area Agency on Aging and Disability Resource Center for Miami and Monroe Counties",
@@ -94,7 +94,7 @@ export default {
             phoneNumber2: "1-800-453-5145",
             hours: "24/7",
         },
-        mapButton: "View Map",
+        mapButton: "View On a Map",
     }
 
 }

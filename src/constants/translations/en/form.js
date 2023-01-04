@@ -36,7 +36,7 @@ export default {
     email : "Email",
     emailConsent: "Do you consent to being contacted via email?",
     popupTitle: "You are about to create a report",
-    popupText:  "If you are a loved one of an abused elder, an abused elder, or a mandatory reporter, please fill out this form.\n\nThe more information you provide us, the better we can assist you in your case, so please be as descriptive as possible when completing this report.",
+    popupText:  "If you are a victim of, witness or suspect human trafficking, please fill out this form.\n\nThe more information you provide us, the better we can assist you in your case, so please be as descriptive as possible when completing this report.",
     disclaimer: "Making a false report of abuse, neglect, or exploitation of a vulnerable adult; which is a report not made in good faith, is a third degree felony and subject to an administrative fine up to $10,000. (F.S 415 & CFOP 140-2 Chapter 3)",
 
 }

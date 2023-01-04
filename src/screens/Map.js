@@ -9,6 +9,7 @@ import {
   PanningProvider,
   Incubator,
   Button,
+  Image
 } from "react-native-ui-lib";
 import { uploadResourceData } from "../../firebase";
 import borders from "../constants/countyborders";
@@ -18,9 +19,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { getResources } from "../redux/resources-actions";
 import { styles } from "../theme/styles";
 import { ScrollView } from "react-native-gesture-handler";
-import { getDistance } from "geolib";
-import {showLocation} from 'react-native-map-link';
-
+import { getDistance, orderByDistance } from "geolib";
+import { showLocation } from "react-native-map-link";
+import {Linking} from 'react-native'
+import images from "../constants/images";
 
 const converToPolygon = (name, arr) => {
   var polygon = [];
@@ -37,16 +39,27 @@ const converToPolygon = (name, arr) => {
   return polygon;
 };
 
+const isolateLocations = (resources) => {
+  const locations = [];
+  resources.forEach((element) => {
+    locations.push(element["coords"]);
+  });
+  return locations;
+};
+
 export const Map = () => {
   const [location, setLocation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
+  const [showClosest, setShowClosest] = useState(false);
+  const [closestResources, setClosestResources] = useState(null);
   const state = useSelector((state) => state.resources);
   const mapRef = useRef(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(getResources());
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -56,17 +69,18 @@ export const Map = () => {
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
     })();
-    // borders.forEach((element) => {
-    //    element["geo_shape"] = converToPolygon(
-    //      element["countyName"],
-    //      element["geo_shape"]
-    //    );
-    //  });
-    dispatch(getResources());
+    borders.forEach((element) => {
+       element["geo_shape"] = converToPolygon(
+         element["countyName"],
+         element["geo_shape"]
+       );
+     });
     setLoading(false);
   }, []);
 
-  const renderPopup = (resource) => {};
+
+
+
 
   return (
     <View flex>
@@ -80,7 +94,7 @@ export const Map = () => {
         }}
         ref={mapRef}
       >
-        {/* {!loading && 
+        {!loading && 
           borders.map((element, index) => {
             return (
               <Polygon
@@ -90,7 +104,7 @@ export const Map = () => {
                 fillColor="rgba(44, 114, 251, 0.5)"
               />
             );
-          })} */}
+          })}
         {location && (
           <Marker
             coordinate={{
@@ -99,7 +113,10 @@ export const Map = () => {
             }}
             title="My Location"
             description="This is my location"
-          />
+          >
+            <Ionicons name="navigate" size={20} color={Colors.primaryColor} />
+            
+          </Marker>
         )}
         {state.resources &&
           state.resources.map((element, index) => {
@@ -108,7 +125,7 @@ export const Map = () => {
               <>
                 <Marker
                   key={index}
-                  pinColor={Colors.primaryColor}
+                  //pinColor={Colors.primaryColor}
                   coordinate={element.coords}
                   title={element["name"]}
                   description={element["hours"]}
@@ -131,7 +148,13 @@ export const Map = () => {
           })}
       </MapView>
       <TouchableOpacity
-        style={{ position: "absolute", bottom: 20, right: 20, backgroundColor: "white", borderRadius: 50,}}
+        style={{
+          position: "absolute",
+          bottom: 20,
+          right: 20,
+          backgroundColor: "white",
+          borderRadius: 50,
+        }}
         onPress={() => {
           mapRef.current.animateToRegion(
             {
@@ -151,10 +174,19 @@ export const Map = () => {
           color={Colors.primaryColor}
         />
       </TouchableOpacity>
-      <TouchableOpacity
-        style={{ position: "absolute", bottom: 80, right: 20, backgroundColor: "white", borderRadius: 50, padding: 10}}
+      {/* <TouchableOpacity
+        style={{
+          position: "absolute",
+          bottom: 80,
+          right: 20,
+          backgroundColor: "white",
+          borderRadius: 50,
+          padding: 10,
+        }}
         onPress={() => {
-          console.log("list")
+          setShowClosest(true);
+          setDialogVisible(true);
+          console.log(closestResources)
         }}
       >
         <Ionicons
@@ -163,51 +195,108 @@ export const Map = () => {
           color={Colors.primaryColor}
           stlye={{ position: "absolute", bottom: 20, right: 20 }}
         />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <Dialog
         visible={dialogVisible}
-        onDismiss={() => setDialogVisible(false)}
+        onDismiss={() => {
+          setDialogVisible(false);
+          setShowClosest(false);
+        }}
         width="90%"
         height="50%"
         overlayBackgroundColor="rgba(0,0,0,0.2)"
         containerStyle={{ borderRadius: 10, marginBottom: "30%" }}
         bottom={true}
       >
-        {selectedResource && (
+        {showClosest && (
           <View bg-white>
-              <ScrollView>
+            <ScrollView>
+              <Incubator.Dialog.Header title={"Closest Resources"} showKnob />
+              <View paddingH-30 paddingV-10>
+                
+              </View>
+            </ScrollView>
+          </View>
+        )}
+        {selectedResource && !showClosest && (
+          <View bg-white>
+            <ScrollView>
               <Incubator.Dialog.Header title={selectedResource.name} showKnob />
               <View paddingH-30 paddingV-10>
-                {selectedResource.coords && <Text marginB-s3>{(getDistance(location.coords, selectedResource.coords)/1609).toFixed(1)} miles away</Text>}
-                <Button marginV-s5 bg-primaryColor label ={"Open in Maps"}
-                onPress = {() => {
-                  showLocation({
-                    latitude: selectedResource.coords.latitude,
-                    longitude: selectedResource.coords.longitude,
-                    title: selectedResource.name, // optional
-                    alwaysIncludeGoogle: true, // optional, true will always add Google Maps to iOS and open in Safari, even if app is not installed (default: false)
-                    googleForceLatLon: false, // optionally force GoogleMaps to use the latlon for the query instead of the title
-                  });
-                }}
+                {selectedResource.coords && (
+                  <Text marginB-s3>
+                    {(
+                      getDistance(location.coords, selectedResource.coords) /
+                      1609
+                    ).toFixed(1)}{" "}
+                    miles away
+                  </Text>
+                )}
+                <Button
+                  marginV-s5
+                  bg-primaryColor
+                  label={"Open in Maps"}
+                  onPress={() => {
+                    showLocation({
+                      latitude: selectedResource.coords.latitude,
+                      longitude: selectedResource.coords.longitude,
+                      title: selectedResource.name, // optional
+                      alwaysIncludeGoogle: true, // optional, true will always add Google Maps to iOS and open in Safari, even if app is not installed (default: false)
+                      googleForceLatLon: false, // optionally force GoogleMaps to use the latlon for the query instead of the title
+                    });
+                  }}
                 />
-                {selectedResource.address && <Text marginT-s4 marginB-s3>{selectedResource.address}</Text>}
-                {selectedResource.hours && <Text marginB-s3>{selectedResource.hours}</Text>}
-                {selectedResource.phone && selectedResource.phone.map((element, index) => {
-                return <Text  style={styles.link} onPress={() => Linking.openURL(`tel:${selectedResource.phoneNumber}`)}
-                marginB-s3 key={index}>{element}</Text>;
-              })}
-              {selectedResource.website && <Text marginB-s3 style={styles.link} onPress={() => Linking.openURL(selectedResource.website)}>{selectedResource.website}</Text>}
-              {selectedResource.email && <Text onPress={() => Linking.openURL(`mailto:${selectedResource.email}`)}
-                    style={styles.link} marginB-s3>{selectedResource.email}</Text>}
-                    <Button bg-tertiaryColor label={"Close"}
-                onPress={() => setDialogVisible(false)}
-                margin-15
-              >
-                </Button>
+                {selectedResource.address && (
+                  <Text marginT-s4 marginB-s3>
+                    {selectedResource.address}
+                  </Text>
+                )}
+                {selectedResource.hours && (
+                  <Text marginB-s3>{selectedResource.hours}</Text>
+                )}
+                {selectedResource.phone &&
+                  selectedResource.phone.map((element, index) => {
+                    return (
+                      <Text
+                        style={styles.link}
+                        onPress={() =>
+                          Linking.openURL(`tel:${element}`)
+                        }
+                        marginB-s3
+                        key={index}
+                      >
+                        {element}
+                      </Text>
+                    );
+                  })}
+                {selectedResource.website && (
+                  <Text
+                    marginB-s3
+                    style={styles.link}
+                    onPress={() => Linking.openURL(selectedResource.website)}
+                  >
+                    {selectedResource.website}
+                  </Text>
+                )}
+                {selectedResource.email && (
+                  <Text
+                    onPress={() =>
+                      Linking.openURL(`mailto:${selectedResource.email}`)
+                    }
+                    style={styles.link}
+                    marginB-s3
+                  >
+                    {selectedResource.email}
+                  </Text>
+                )}
+                <Button
+                  bg-tertiaryColor
+                  label={"Close"}
+                  onPress={() => setDialogVisible(false)}
+                  margin-15
+                ></Button>
               </View>
-              
-              </ScrollView>
-
+            </ScrollView>
           </View>
         )}
       </Dialog>

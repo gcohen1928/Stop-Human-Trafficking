@@ -6,7 +6,9 @@ export const getResources = () => {
       try {
         const res = await fetchResources();
         res.forEach((county) => {
-            county.coords = {latitude: county.coords.latitude, longitude: county.coords.longitude}
+            if(county.coords){
+                county.coords = {latitude: county.coords.latitude, longitude: county.coords.longitude}
+            } 
         })
         dispatch(resourcesActions.setResources(res));
       } catch (err) {
